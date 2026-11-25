@@ -1,0 +1,5 @@
+name,event_type,ears_sold,price_per_ear,vendor_fee,cogs_per_ear,labor_hours,hourly_rate,travel_cost
+Destin Seafood Festival,Major Festival,620,7.00,850.00,1.35,16,15.00,60.00
+Crestview Saturday Market,Local Market,95,7.00,150.00,1.35,8,15.00,25.00
+Fort Walton Beach Pop-Up,Weekday Pop-Up,55,7.00,100.00,1.35,7,15.00,40.00
+30A Spring Concert Series,Peak Event,410,8.00,500.00,1.40,12,15.00,50.00
