@@ -1,14 +1,17 @@
-from dataclasses import dataclass
+import csv
 import math
+from dataclasses import dataclass
+from pathlib import Path
+
 
 @dataclass
 class EventRecord:
     name: str
-    event_type: str       
+    event_type: str
     ears_sold: int
     price_per_ear: float
     vendor_fee: float
-    cogs_per_ear: float   
+    cogs_per_ear: float
     labor_hours: float
     hourly_rate: float
     travel_cost: float
@@ -34,19 +37,54 @@ class EventRecord:
         return (self.net_profit / self.gross_revenue) * 100
 
     @property
+    def profit_per_labor_hour(self) -> float:
+        if self.labor_hours <= 0:
+            return 0.0
+        return self.net_profit / self.labor_hours
+
+    @property
     def break_even_ears(self) -> int:
         contribution_margin = self.price_per_ear - self.cogs_per_ear
         if contribution_margin <= 0:
             return -1
+
         fixed_costs = self.vendor_fee + (self.labor_hours * self.hourly_rate) + self.travel_cost
-        # Use math.ceil so you never underestimate the units needed to cover fixed costs
-        return math.ceil(fixed_costs / contribution_margin)
+        if fixed_costs <= 0:
+            return 0  # Already breaking even at 0 sales if fixed costs are covered/subsidized
+
+        # Add a tiny epsilon to prevent floating-point precision miscalculations in math.ceil
+        exact_ears = fixed_costs / contribution_margin
+        return math.ceil(exact_ears - 1e-9)
 
 
-def analyze_events(events: list[EventRecord]) -> None:
-    print("=" * 72)
-    print("MUTHER SHUCKERS COWBOY CORN — EVENT PROFITABILITY REPORT")
-    print("=" * 72)
+def load_events_from_csv(filepath: str) -> list[EventRecord]:
+    events: list[EventRecord] = []
+    with open(filepath, mode="r", newline="", encoding="utf-8") as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            events.append(
+                EventRecord(
+                    name=row["name"].strip(),
+                    event_type=row["event_type"].strip(),
+                    # Using int(float(...)) prevents crashes if CSV exports integers as floats (e.g., "100.0")
+                    ears_sold=int(float(row["ears_sold"])),
+                    price_per_ear=float(row["price_per_ear"]),
+                    vendor_fee=float(row["vendor_fee"]),
+                    cogs_per_ear=float(row["cogs_per_ear"]),
+                    labor_hours=float(row["labor_hours"]),
+                    hourly_rate=float(row["hourly_rate"]),
+                    travel_cost=float(row["travel_cost"]),
+                )
+            )
+    return events
+
+
+def generate_report(events: list[EventRecord]) -> str:
+    lines = [
+        "=" * 76,
+        "MUTHER SHUCKERS COWBOY CORN — EVENT PROFITABILITY REPORT (V2)",
+        "=" * 76,
+    ]
 
     sorted_events = sorted(events, key=lambda e: e.net_profit, reverse=True)
 
@@ -57,27 +95,39 @@ def analyze_events(events: list[EventRecord]) -> None:
             status = "BREAK-EVEN ⚖️"
         else:
             status = "UNPROFITABLE ❌"
-            
-        print(f"\nEvent: {event.name} ({event.event_type}) — {status}")
-        print(f"  Ears Sold: {event.ears_sold} | Break-Even Needed: {event.break_even_ears} ears")
-        print(f"  Gross Revenue: ${event.gross_revenue:,.2f} | Total Cost: ${event.total_cost:,.2f}")
-        print(f"  Net Profit: ${event.net_profit:,.2f} ({event.profit_margin:.1f}% margin)")
+
+        be_display = (
+            f"{event.break_even_ears} ears"
+            if event.break_even_ears != -1
+            else "Impossible (Price <= COGS)"
+        )
+
+        lines.append(f"\nEvent: {event.name} ({event.event_type}) — {status}")
+        lines.append(f"  Ears Sold: {event.ears_sold} | Break-Even Needed: {be_display}")
+        lines.append(f"  Gross Revenue: ${event.gross_revenue:,.2f} | Total Cost: ${event.total_cost:,.2f}")
+        lines.append(
+            f"  Net Profit: ${event.net_profit:,.2f} ({event.profit_margin:.1f}% margin) | "
+            f"Profit/Labor Hr: ${event.profit_per_labor_hour:,.2f}/hr"
+        )
 
     total_net = sum(e.net_profit for e in events)
     winners = [e for e in events if e.net_profit > 0]
     losers = [e for e in events if e.net_profit < 0]
 
-    print("\n" + "=" * 72)
-    print(f"SUMMARY: {len(winners)} Profitable Events | {len(losers)} Money-Losing Events")
-    print(f"NET PORTFOLIO PROFIT: ${total_net:,.2f}")
-    print("=" * 72)
+    lines.append("\n" + "=" * 76)
+    lines.append(f"SUMMARY: {len(winners)} Profitable Events | {len(losers)} Money-Losing Events")
+    lines.append(f"NET PORTFOLIO PROFIT: ${total_net:,.2f}")
+    lines.append("=" * 76)
+
+    return "\n".join(lines)
 
 
 if __name__ == "__main__":
-    sample_events = [
-        EventRecord("Destin Seafood Festival", "Major Festival", 620, 7.00, 850.00, 1.35, 16, 15.00, 60.00),
-        EventRecord("Crestview Saturday Market", "Local Market", 95, 7.00, 150.00, 1.35, 8, 15.00, 25.00),
-        EventRecord("Fort Walton Beach Pop-Up", "Weekday Pop-Up", 55, 7.00, 100.00, 1.35, 7, 15.00, 40.00),
-        EventRecord("30A Spring Concert Series", "Peak Event", 410, 8.00, 500.00, 1.40, 12, 15.00, 50.00),
-    ]
-    analyze_events(sample_events)
+    csv_path = Path(__file__).parent / "events.csv"
+    events = load_events_from_csv(str(csv_path))
+    report = generate_report(events)
+    print(report)
+
+    report_path = Path(__file__).parent / "report.txt"
+    report_path.write_text(report, encoding="utf-8")
+    print(f"\nSaved report to {report_path}")
