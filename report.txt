@@ -1,0 +1,32 @@
+============================================================================
+MUTHER SHUCKERS COWBOY CORN — EVENT PROFITABILITY REPORT (V3)
+============================================================================
+
+Event: Destin Seafood Festival (Major Festival) — PROFITABLE ✅
+  Ears Sold: 620 | Break-Even Needed: 204 ears
+  Gross Revenue: $4,340.00 | Total Cost: $1,987.00
+  Net Profit: $2,353.00 (54.2% margin) | Profit/Labor Hr: $147.06/hr
+  Weather Stress-Test -> Rain (65%): $1,126.95 | Storm (30%): $-99.10 | Verdict: BOOK ✅
+
+Event: 30A Spring Concert Series (Peak Event) — PROFITABLE ✅
+  Ears Sold: 410 | Break-Even Needed: 111 ears
+  Gross Revenue: $3,280.00 | Total Cost: $1,304.00
+  Net Profit: $1,976.00 (60.2% margin) | Profit/Labor Hr: $164.67/hr
+  Weather Stress-Test -> Rain (65%): $1,025.60 | Storm (30%): $81.80 | Verdict: BOOK ✅
+
+Event: Crestview Saturday Market (Local Market) — PROFITABLE ✅
+  Ears Sold: 95 | Break-Even Needed: 53 ears
+  Gross Revenue: $665.00 | Total Cost: $423.25
+  Net Profit: $241.75 (36.4% margin) | Profit/Labor Hr: $30.22/hr
+  Weather Stress-Test -> Rain (65%): $49.65 | Storm (30%): $-136.80 | Verdict: BOOK ✅
+
+Event: Fort Walton Beach Pop-Up (Weekday Pop-Up) — PROFITABLE ✅
+  Ears Sold: 55 | Break-Even Needed: 44 ears
+  Gross Revenue: $385.00 | Total Cost: $319.25
+  Net Profit: $65.75 (17.1% margin) | Profit/Labor Hr: $9.39/hr
+  Weather Stress-Test -> Rain (65%): $-47.25 | Storm (30%): $-154.60 | Verdict: NEGOTIATE FEE ⚠️
+
+============================================================================
+SUMMARY: 4 Profitable Events | 0 Money-Losing Events
+NET PORTFOLIO PROFIT: $4,636.50
+============================================================================
