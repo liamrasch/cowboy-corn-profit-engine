@@ -3,6 +3,13 @@ import math
 from dataclasses import dataclass
 from pathlib import Path
 
+WEATHER_MULTIPLIERS = {
+    "Clear": 1.00,
+    "Hot/Humid": 0.90,
+    "Scattered Rain": 0.65,
+    "Storm Risk": 0.30,
+}
+
 
 @dataclass
 class EventRecord:
@@ -41,6 +48,18 @@ class EventRecord:
         if self.labor_hours <= 0:
             return 0.0
         return self.net_profit / self.labor_hours
+
+    def projected_profit(self, multiplier: float) -> float:
+        # Scale ears sold down for bad weather (floor rounds down to a whole ear)
+        adjusted_ears = math.floor(self.ears_sold * multiplier)
+        
+        # Calculate revenue and costs at that lower volume
+        revenue = adjusted_ears * self.price_per_ear
+        variable_cogs = adjusted_ears * self.cogs_per_ear
+        fixed_costs = self.vendor_fee + (self.labor_hours * self.hourly_rate) + self.travel_cost
+        
+        # Return net profit under that weather scenario
+        return revenue - (variable_cogs + fixed_costs)
 
     @property
     def break_even_ears(self) -> int:
@@ -82,7 +101,7 @@ def load_events_from_csv(filepath: str) -> list[EventRecord]:
 def generate_report(events: list[EventRecord]) -> str:
     lines = [
         "=" * 76,
-        "MUTHER SHUCKERS COWBOY CORN — EVENT PROFITABILITY REPORT (V2)",
+        "MUTHER SHUCKERS COWBOY CORN — EVENT PROFITABILITY REPORT (V3)",
         "=" * 76,
     ]
 
@@ -109,6 +128,15 @@ def generate_report(events: list[EventRecord]) -> str:
             f"  Net Profit: ${event.net_profit:,.2f} ({event.profit_margin:.1f}% margin) | "
             f"Profit/Labor Hr: ${event.profit_per_labor_hour:,.2f}/hr"
         )
+        rain_profit = event.projected_profit(WEATHER_MULTIPLIERS["Scattered Rain"])
+        storm_profit = event.projected_profit(WEATHER_MULTIPLIERS["Storm Risk"])
+        if rain_profit > 0:
+            verdict = "BOOK ✅"
+        elif event.net_profit > 0:
+            verdict = "NEGOTIATE FEE ⚠️"
+        else:
+            verdict = "SKIP ❌"
+        lines.append(f"  Weather Stress-Test -> Rain (65%): ${rain_profit:,.2f} | Storm (30%): ${storm_profit:,.2f} | Verdict: {verdict}")
 
     total_net = sum(e.net_profit for e in events)
     winners = [e for e in events if e.net_profit > 0]
