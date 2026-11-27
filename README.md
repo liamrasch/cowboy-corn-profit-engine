@@ -14,4 +14,4 @@ Mobile event food operations often generate strong profits at peak festivals whi
 ## 🚀 Roadmap
 - [x] V1: Core unit-economics calculator & event profitability ranker (`analyzer.py`)
 - [x] V2: CSV ingestion from real historical Florida & Texas event logs
-- [ ] V3: Weather forecast & local festival attendance scoring predictor
+- [x] V3: Weather forecast & local festival attendance scoring predictor
